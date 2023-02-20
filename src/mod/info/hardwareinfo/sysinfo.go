@@ -137,13 +137,21 @@ func GetCPUInfo(w http.ResponseWriter, r *http.Request) {
 	cmd = exec.Command("bash", "-c", cmdin)
 	cpuhardware, err := cmd.CombinedOutput()
 	if err != nil {
-
+		//On ARM STB
+		cmdin = `cat /proc/device-tree/model | grep -a ""`
+		cmd = exec.Command("bash", "-c", cmdin)
+		cpuhardwarestb, err := cmd.CombinedOutput()
+    		if err != nil {
+			  hardware = []byte("??? ")
+		} else {
+			  hardware = cpuhardwarestb
+		}
 	} else {
 		hardware = cpuhardware
 	}
 
 	//On ARM
-	cmdin = `cat /proc/cpuinfo | grep -m1 "Revision"`
+	cmdin = `cat /proc/cpuinfo | grep -m1 -i "Revision"`
 	cmd = exec.Command("bash", "-c", cmdin)
 	revision, err := cmd.CombinedOutput()
 	if err != nil {
